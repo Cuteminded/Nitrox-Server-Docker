@@ -1,0 +1,17 @@
+services:
+  nitrox:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    restart: "unless-stopped"
+    ports:
+      - "11000:11000/udp" # Nitrox
+    volumes:
+      - "nitrox-data:/software/nitrox" # Stores your server data, such as the configuration and world data
+      - "/path/to/subnautica:/software/subnautica" # Stores Subnautica's game files - you will need to copy your own game directory here by moving the contents of your Subnautica installation directory to this volume
+    environment:
+      - "GROUP_ID=1000" # The ID of the group to run Nitrox as (default=1000)
+      - "USER_ID=1000" # The ID of the user to run Nitrox as (default=1000)
+      - "TIMEZONE=Etc/GMT" # The timezone to run Nitrox with (default=Etc/GMT)
+volumes:
+  nitrox-data: 
