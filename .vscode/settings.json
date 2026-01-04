@@ -1,0 +1,4 @@
+{
+    "files.eol": "\n",
+    "containers.commands.build": "${containerCommand} buildx build --platform linux/amd64 --pull --push --rm -f \"${dockerfile}\" -t cuteminded/nitrox-server:${tag} \"${context}\""
+}
