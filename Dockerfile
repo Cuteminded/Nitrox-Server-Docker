@@ -1,4 +1,6 @@
 FROM mcr.microsoft.com/dotnet/runtime:9.0
+ARG TARGETARCH
+ENV TZ=Etc/UTC
 ENV NITROX_VERSION=1.8.0.1
 ENV SUBNAUTICA_INSTALLATION_PATH=/mnt/subnautica
 EXPOSE 11000/udp
@@ -10,13 +12,19 @@ RUN apt-get install -y --no-install-recommends ca-certificates curl unzip
 RUN rm -rf /var/lib/apt/lists/*
 
 # download + extract Nitrox Linux release
-RUN curl -fL -o /tmp/nitrox.zip "https://github.com/SubnauticaNitrox/Nitrox/releases/download/${NITROX_VERSION}/Nitrox_${NITROX_VERSION}_linux_x64.zip"
+RUN set -eux; \
+    if [ "$TARGETARCH" = "arm64" ]; then \
+        curl -fL -o /tmp/nitrox.zip "https://github.com/SubnauticaNitrox/Nitrox/releases/download/${NITROX_VERSION}/Nitrox_${NITROX_VERSION}_linux_arm64.zip"; \
+    elif [ "$TARGETARCH" = "amd64" ]; then \
+        curl -fL -o /tmp/nitrox.zip "https://github.com/SubnauticaNitrox/Nitrox/releases/download/${NITROX_VERSION}/Nitrox_${NITROX_VERSION}_linux_x64.zip"; \
+    else \
+        echo "Unsupported architecture: $TARGETARCH" && exit 1; \
+    fi
 RUN unzip /tmp/nitrox.zip -d /app/Nitrox
-# RUN mv /app/Nitrox/linux-x64/* /app/Nitrox/
-# RUN rmdir /app/Nitrox/linux-x64
 RUN rm /tmp/nitrox.zip
 WORKDIR /app/Nitrox
 
+# setup boot script
 COPY boot.sh /usr/bin/CMBoot
 RUN chmod +x /usr/bin/CMBoot
 RUN chmod +x /app/Nitrox/NitroxServer-Subnautica
