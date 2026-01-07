@@ -12,5 +12,5 @@ echo "[CM] Subnautica Installation Path: ${SUBNAUTICA_INSTALLATION_PATH}"
 echo "[CM] Starting Nitrox Services..."
 export HOME=/app
 export XDG_CONFIG_HOME=/app/config
-/app/Nitrox/NitroxServer-Subnautica --game-path ${SUBNAUTICA_INSTALLATION_PATH}
+/app/Nitrox/Nitrox.Server.Subnautica --game-path ${SUBNAUTICA_INSTALLATION_PATH}
 

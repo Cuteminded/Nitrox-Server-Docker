@@ -1,7 +1,7 @@
 FROM mcr.microsoft.com/dotnet/runtime:9.0
 ARG TARGETARCH
 ENV TZ=Etc/UTC
-ENV NITROX_VERSION=1.8.0.1
+ENV NITROX_VERSION=1.8.1.0
 ENV SUBNAUTICA_INSTALLATION_PATH=/mnt/subnautica
 EXPOSE 11000/udp
 WORKDIR /app
@@ -27,6 +27,6 @@ WORKDIR /app/Nitrox
 # setup boot script
 COPY boot.sh /usr/bin/CMBoot
 RUN chmod +x /usr/bin/CMBoot
-RUN chmod +x /app/Nitrox/NitroxServer-Subnautica
+RUN chmod +x /app/Nitrox/Nitrox.Server.Subnautica
 CMD ["CMBoot"]
 

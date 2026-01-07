@@ -1,6 +1,6 @@
 # Nitrox Server Docker
 A docker image that runs the Nitrox server software for the game Subnautica.
-> Works with Nitrox 1.8.0.1 `x64` and `ARM64` versions.
+> Works with Nitrox `1.8.1.0` on `x64` and `ARM64`.
 
 ## Links
 Visit the official Nitrox website [here](https://nitrox.rux.gg/download).<br>
