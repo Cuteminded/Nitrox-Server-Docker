@@ -3,12 +3,18 @@ ARG TARGETARCH
 ENV TZ=Etc/UTC
 ENV NITROX_VERSION=1.8.1.0
 ENV SUBNAUTICA_INSTALLATION_PATH=/mnt/subnautica
+ENV CONFIG_EDITOR=false
+ENV CONFIG_EDITOR_USER=nitrox
+ENV CONFIG_EDITOR_PASS=nitrox
+EXPOSE 5000
 EXPOSE 11000/udp
 WORKDIR /app
 RUN mkdir -p /app/config/Nitrox
 VOLUME [ "/app/config/Nitrox" ]
+RUN mkdir -p /app/config/configEditor
+COPY config_editor.py /app/config/configEditor/
 RUN apt-get update && apt-get upgrade -y
-RUN apt-get install -y --no-install-recommends ca-certificates curl unzip
+RUN apt-get install -y --no-install-recommends ca-certificates curl unzip python3 python3-flask python3-waitress
 RUN rm -rf /var/lib/apt/lists/*
 
 # download + extract Nitrox Linux release

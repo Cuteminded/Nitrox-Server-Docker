@@ -43,5 +43,13 @@ Set the timezone to your own for proper timestamps in the logs.
 You can find your server files including the configuration files in the `nitrox-data` volume.<br>
 Docker volumes are usually stored in `/var/lib/docker/volumes`.
 
+### GUI Config Editor
+The image includes a web-based GUI config editor for editing the server configuration file.
+
+#### Enabling the Config Editor
+```bash
+-e CONFIG_EDITOR=true -e CONFIG_EDITOR_USER=yourusername -e CONFIG_EDITOR_PASS=yourpassword
+```
+
 ## Disclaimer
 This project is not affiliated with either the Nitrox or the Subnautica developers.
