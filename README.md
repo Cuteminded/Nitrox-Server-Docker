@@ -24,7 +24,8 @@ services:
     tty: true
     stdin_open: true
     ports:
-      - "11000:11000/udp"
+      - "11000:11000/udp" # Nitrox Game Port
+      - "50000:50000" # GUI Config Editor Port (if enabled)
     environment:
       TZ: "Etc/UTC"
       SUBNAUTICA_INSTALLATION_PATH: "/mnt/subnautica"
