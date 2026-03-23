@@ -6,6 +6,18 @@ A docker image that runs the Nitrox server software for the game Subnautica.
 Visit the official Nitrox website [here](https://nitrox.rux.gg/download).<br>
 You can find the original repository for this project [here](https://github.com/Cuteminded/Nitrox-Server-Docker).
 
+## Tested Environments
+
+It may work on other environments as well, but these are the ones that have been tested:
+
+- Ubuntu 24.04 **[x64]**
+- MacOs Tahoe **[ARM64]**
+- Windows 11 **[x64]**
+- Raspberry Pi OS 13 (trixie) **[ARM64]**
+  * Raspberry Pi 4 model B
+  * External SSD for storage
+  * 4GB RAM
+
 ### Docker
 To run the image using docker, use the following command:
 
