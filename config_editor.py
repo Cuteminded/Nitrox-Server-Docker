@@ -1,15 +1,17 @@
 #!/usr/bin/env python3
 from __future__ import annotations
 
-import argparse
-import base64
-import datetime as dt
 import os
 import re
+import sys
+import time
 import shlex
+import base64
+import argparse
 import subprocess
-from dataclasses import dataclass
+import datetime as dt
 from pathlib import Path
+from dataclasses import dataclass
 from typing import Dict, List, Optional, Tuple
 from flask import Flask, Response, redirect, render_template_string, request, url_for
 from waitress import serve
@@ -17,6 +19,9 @@ from waitress import serve
 KV_RE = re.compile(r"^\s*([^#=\s][^=]*?)\s*=\s*(.*?)\s*$")
 BOOL_TRUE = {"true", "1", "yes", "on"}
 BOOL_FALSE = {"false", "0", "no", "off"}
+
+def logToDocker(message: str):
+    print(f"[CM] [ConfigEditor] {message}", file=sys.stderr)
 
 @dataclass
 class Line:
@@ -315,13 +320,20 @@ def main():
     p = argparse.ArgumentParser()
     p.add_argument("--config", default="/app/config/Nitrox/saves/My World/server.cfg")
     p.add_argument("--host", default="0.0.0.0")
-    p.add_argument("--port", default=5000, type=int)
+    p.add_argument("--port", default=8080, type=int)
     args = p.parse_args()
 
     cfg_path = Path(args.config).expanduser()
+    # Wait a bit for the server to create the config file if it doesn't exist yet
+    logToDocker(f"Waiting for config file to be available at: {cfg_path} ...")
+    time.sleep(5)
     if not cfg_path.exists():
-        raise SystemExit(f"Config file not found: {cfg_path}")
-
+        logToDocker(f"Config file not found: {cfg_path}")
+        raise SystemExit("[CM] [ConfigEditor] Stopping server.")
+    
+    logToDocker(f"Using config file: {cfg_path}")
+    logToDocker(f"Starting server on {args.host}:{args.port} ...")
+    logToDocker(f"Basic auth is {'enabled' if basic_auth_required() else 'disabled'}.")
     app = create_app(cfg_path)
     serve(app, host=args.host, port=args.port)
 

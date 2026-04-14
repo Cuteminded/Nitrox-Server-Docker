@@ -18,6 +18,10 @@ It may work on other environments as well, but these are the ones that have been
   * External SSD for storage
   * 4GB RAM
 
+### GUI Config Editor
+The image includes a web-based GUI config editor for editing the server configuration file.
+To enable the config editor, set the `CONFIG_EDITOR` environment variable to `true` when running the container.
+
 ### Docker
 To run the image using docker, use the following command:
 
@@ -37,10 +41,13 @@ services:
     stdin_open: true
     ports:
       - "11000:11000/udp" # Nitrox Game Port
-      - "50000:50000" # GUI Config Editor Port (if enabled)
+      - "8080:8080" # GUI Config Editor Port (if enabled)
     environment:
       TZ: "Etc/UTC"
-      SUBNAUTICA_INSTALLATION_PATH: "/mnt/subnautica"
+      SUBNAUTICA_INSTALLATION_PATH: "/mnt/subnautica" # Optional, only needed if the folder is not mounted to the default path in the container
+      CONFIG_EDITOR: true # Optional, set to "true" to enable the GUI config editor Default: false
+      CONFIG_EDITOR_USER: "nitrox" # Optional, username for the GUI config editor   Default: nitrox
+      CONFIG_EDITOR_PASS: "nitrox" # Optional, password for the GUI config editor   Default: nitrox Please change these for better security if you enable the config editor!
     volumes:
       - "nitrox-data:/app/config/Nitrox"
       - "/path/to/subnautica:/mnt/subnautica"
@@ -55,14 +62,6 @@ Set the timezone to your own for proper timestamps in the logs.
 ### Server Configuration
 You can find your server files including the configuration files in the `nitrox-data` volume.<br>
 Docker volumes are usually stored in `/var/lib/docker/volumes`.
-
-### GUI Config Editor
-The image includes a web-based GUI config editor for editing the server configuration file.
-
-#### Enabling the Config Editor
-```bash
--e CONFIG_EDITOR=true -e CONFIG_EDITOR_USER=yourusername -e CONFIG_EDITOR_PASS=yourpassword
-```
 
 ## Disclaimer
 This project is not affiliated with either the Nitrox or the Subnautica developers.

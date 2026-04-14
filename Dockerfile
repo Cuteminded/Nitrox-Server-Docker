@@ -6,8 +6,7 @@ ENV SUBNAUTICA_INSTALLATION_PATH=/mnt/subnautica
 ENV CONFIG_EDITOR=false
 ENV CONFIG_EDITOR_USER=nitrox
 ENV CONFIG_EDITOR_PASS=nitrox
-EXPOSE 5000
-EXPOSE 11000/udp
+EXPOSE 8080/tcp 11000/udp
 WORKDIR /app
 RUN mkdir -p /app/config/Nitrox
 VOLUME [ "/app/config/Nitrox" ]
@@ -35,4 +34,3 @@ COPY boot.sh /usr/bin/CMBoot
 RUN chmod +x /usr/bin/CMBoot
 RUN chmod +x /app/Nitrox/Nitrox.Server.Subnautica
 CMD ["CMBoot"]
-

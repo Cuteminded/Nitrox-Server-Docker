@@ -18,4 +18,3 @@ if [ "${CONFIG_EDITOR}" = "true" ]; then
     python3 /app/config/configEditor/config_editor.py &
 fi
 /app/Nitrox/Nitrox.Server.Subnautica --game-path ${SUBNAUTICA_INSTALLATION_PATH}
-
