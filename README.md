@@ -44,6 +44,7 @@ services:
       - "8080:8080" # GUI Config Editor Port (if enabled)
     environment:
       TZ: "Etc/UTC"
+      NITROX_SAVE: "My World" # Optional, name of the save to use for the server, default is "My World"
       SUBNAUTICA_INSTALLATION_PATH: "/mnt/subnautica" # Optional, only needed if the folder is not mounted to the default path in the container
       CONFIG_EDITOR: true # Optional, set to "true" to enable the GUI config editor Default: false
       CONFIG_EDITOR_USER: "nitrox" # Optional, username for the GUI config editor   Default: nitrox
