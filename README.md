@@ -65,4 +65,9 @@ You can find your server files including the configuration files in the `nitrox-
 Docker volumes are usually stored in `/var/lib/docker/volumes`.
 
 ## Disclaimer
-This project is not affiliated with either the Nitrox or the Subnautica developers.
+This project is an unofficial Docker/containerization project for Nitrox.
+
+Nitrox is developed by the Nitrox team:
+https://github.com/SubnauticaNitrox/Nitrox
+
+This repository is not affiliated with, endorsed by, or associated with the Nitrox developers, Unknown Worlds Entertainment, or Subnautica.
