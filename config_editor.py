@@ -321,12 +321,17 @@ def main():
     nitrox_save = os.getenv("NITROX_SAVE", "My World")
     
     cfg_path = Path("/app/config/Nitrox/saves/{0}/server.cfg".format(nitrox_save)).expanduser()
-    # Wait a bit for the server to create the config file if it doesn't exist yet
     logToDocker(f"Waiting for config file to be available at: {cfg_path} ...")
-    time.sleep(5)
-    if not cfg_path.exists():
-        logToDocker(f"Config file not found: {cfg_path}")
-        raise SystemExit("[CM] [ConfigEditor] Stopping server.")
+    wait_interval = 5
+    max_wait = 120
+    elapsed = 0
+    while not cfg_path.exists():
+        if elapsed >= max_wait:
+            logToDocker(f"Config file not found after {max_wait}s: {cfg_path}")
+            raise SystemExit("[CM] [ConfigEditor] Stopping server.")
+        time.sleep(wait_interval)
+        elapsed += wait_interval
+        logToDocker(f"Still waiting for config file... ({elapsed}s elapsed)")
     
     logToDocker(f"Using config file: {cfg_path}")
     logToDocker(f"Starting server on {app_host}:{app_port} ...")
