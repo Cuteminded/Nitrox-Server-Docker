@@ -1,0 +1,8 @@
+# CODEOWNERS
+#
+# Primary maintainer: @Cuteminded
+# Backup maintainer: @ItsAlexeii
+#
+# @ItsAlexeii may review and approve changes when @Cuteminded is unavailable.
+
+* @Cuteminded @ItsAlexeii
