@@ -1,18 +1,19 @@
 FROM mcr.microsoft.com/dotnet/runtime:9.0
 ARG TARGETARCH
 ENV TZ=Etc/UTC
-ENV NITROX_VERSION=1.8.1.0
 ENV NITROX_SAVE="My World"
-ENV SUBNAUTICA_INSTALLATION_PATH=/mnt/subnautica
+ENV NITROX_VERSION=1.8.1.0
 ENV CONFIG_EDITOR=false
 ENV CONFIG_EDITOR_USER=nitrox
 ENV CONFIG_EDITOR_PASS=nitrox
+ENV CONFIG_EDITOR_THEME=light
+ENV SUBNAUTICA_INSTALLATION_PATH=/mnt/subnautica
 EXPOSE 8080/tcp 11000/udp
 WORKDIR /app
 RUN mkdir -p /app/config/Nitrox
 VOLUME [ "/app/config/Nitrox" ]
 RUN mkdir -p /app/config/configEditor
-COPY config_editor.py /app/config/configEditor/
+COPY configEditor/ /app/config/configEditor/
 RUN apt-get update && apt-get upgrade -y
 RUN apt-get install -y --no-install-recommends ca-certificates curl unzip python3 python3-flask python3-waitress
 RUN rm -rf /var/lib/apt/lists/*

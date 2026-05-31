@@ -1,0 +1,200 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <title>Config Editor</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+        body {
+            font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+            margin: 24px;
+            background: #0f1115;
+            color: #e6e6e6;
+        }
+
+        .wrap {
+            max-width: 1020px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            margin: 0 0 8px;
+            color: #ffffff;
+        }
+
+        .bar {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            margin: 12px 0 18px;
+            flex-wrap: wrap;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            font-size: 14px;
+            box-sizing: border-box;
+            background: #181b22;
+            color: #f1f1f1;
+            border: 1px solid #333846;
+            border-radius: 8px;
+        }
+
+        input[type="text"]::placeholder {
+            color: #8f96a3;
+        }
+
+        .row {
+            border: 1px solid #2d3340;
+            border-radius: 10px;
+            padding: 14px;
+            margin: 12px 0;
+            background: #161922;
+        }
+
+        .key {
+            font-weight: 700;
+            margin-bottom: 6px;
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            color: #ffffff;
+        }
+
+        .comment {
+            color: #b7bdc9;
+            font-size: 13px;
+            margin-bottom: 10px;
+            white-space: pre-wrap;
+        }
+
+        .actions {
+            margin-top: 16px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            padding: 10px 14px;
+            border-radius: 10px;
+            border: 1px solid #4f8cff;
+            background: #4f8cff;
+            color: #ffffff;
+            cursor: pointer;
+        }
+
+        button.secondary {
+            background: transparent;
+            color: #e6e6e6;
+            border-color: #444b5a;
+        }
+
+        button.danger {
+            background: #9b1c1c;
+            border-color: #9b1c1c;
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .msg {
+            padding: 12px 14px;
+            border-radius: 10px;
+            margin: 12px 0;
+        }
+
+        .ok {
+            background: #12351d;
+            border: 1px solid #2f8f46;
+            color: #d6f5dc;
+        }
+
+        .err {
+            background: #3a1515;
+            border: 1px solid #a33a3a;
+            color: #ffd6d6;
+        }
+
+        .small {
+            font-size: 12px;
+            color: #9aa3b2;
+        }
+
+        .kvgrid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+        }
+
+        @media (min-width: 900px) {
+            .kvgrid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        .boolwrap {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 6px 0 2px;
+            color: #e6e6e6;
+        }
+
+        .boolwrap input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            accent-color: #4f8cff;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="wrap">
+        <h1>Config Editor</h1>
+        {% if message %}
+        <div class="msg {{ 'ok' if message_kind=='ok' else 'err' }}">{{ message }}</div>
+        {% endif %}
+        <div class="bar">
+            <!-- IMPORTANT: this button submits the BIG form below -->
+            <button type="submit" form="saveForm">Save changes</button>
+            <button class="secondary" type="button" onclick="window.location='{{ url_for('index') }}'">Reload</button>
+        </div>
+        <form id="saveForm" method="post" action="{{ url_for('save') }}">
+            <div class="kvgrid">
+                {% for item in items %}
+                <div class="row">
+                    {% if item.comment %}
+                    <div class="comment">{{ item.comment }}</div>
+                    {% endif %}
+                    <div class="key">
+                        <span>{{ item.key }}</span>
+                        {% if item.is_bool %}
+                        <span class="small">boolean</span>
+                        {% endif %}
+                    </div>
+                    {% if item.is_bool %}
+                    <div class="boolwrap">
+                        <input type="hidden" name="t__{{ item.key|e }}" value="bool">
+                        <input type="checkbox" name="b__{{ item.key|e }}" value="1" {% if item.bool_checked %}checked{% endif %} />
+                    </div>
+                    {% else %}
+                    <input type="text" name="k__{{ item.key|e }}" value="{{ item.value|e }}" />
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+            <div class="actions">
+                <button type="submit">Save changes</button>
+                <button class="secondary" type="button"
+                    onclick="window.location='{{ url_for('index') }}'">Reload</button>
+            </div>
+        </form>
+    </div>
+</body>
+
+</html>

@@ -12,12 +12,12 @@ import datetime as dt
 from pathlib import Path
 from dataclasses import dataclass
 from typing import Dict, List, Optional, Tuple
-from flask import Flask, Response, redirect, render_template_string, request, url_for
+from flask import Flask, Response, redirect, render_template, request, url_for
 from waitress import serve
 
 KV_RE = re.compile(r"^\s*([^#=\s][^=]*?)\s*=\s*(.*?)\s*$")
-BOOL_TRUE = {"true", "1", "yes", "on"}
-BOOL_FALSE = {"false", "0", "no", "off"}
+BOOL_TRUE = {"true", "True", "1", "yes", "on"}
+BOOL_FALSE = {"false", "False", "0", "no", "off"}
 
 def logToDocker(message: str):
     print(f"[CM] [ConfigEditor] {message}", file=sys.stderr)
@@ -176,84 +176,11 @@ def run_configured_command(env_var: str, timeout_seconds: int = 10) -> Tuple[boo
     except Exception as e:
         return False, f"Failed to run command: {e}"
 
+def get_themed_template(theme: str, template_name: str) -> str:
+    theme = theme.lower()
+    return f"{template_name}_{theme}.html"
 
-PAGE_TMPL = """
-<!doctype html>
-<html>
-<head>
-  <meta charset="utf-8" />
-  <title>Config Editor</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <style>
-    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; margin: 24px; }
-    .wrap { max-width: 1020px; margin: 0 auto; }
-    h1 { margin: 0 0 8px; }
-    .bar { display: flex; gap: 12px; align-items: center; margin: 12px 0 18px; flex-wrap: wrap; }
-    input[type="text"] { width: 100%; padding: 10px; font-size: 14px; box-sizing: border-box; }
-    .row { border: 1px solid #ddd; border-radius: 10px; padding: 14px; margin: 12px 0; }
-    .key { font-weight: 700; margin-bottom: 6px; display:flex; justify-content:space-between; gap:10px; }
-    .comment { color: #555; font-size: 13px; margin-bottom: 10px; white-space: pre-wrap; }
-    .actions { margin-top: 16px; display: flex; gap: 10px; flex-wrap: wrap; }
-    button { padding: 10px 14px; border-radius: 10px; border: 1px solid #111; background: #111; color: #fff; cursor: pointer; }
-    button.secondary { background: #fff; color: #111; }
-    button.danger { background: #7a0f0f; border-color:#7a0f0f; }
-    button:disabled { opacity: 0.5; cursor: not-allowed; }
-    .msg { padding: 12px 14px; border-radius: 10px; margin: 12px 0; }
-    .ok { background: #e9f7ec; border: 1px solid #a6dfb2; }
-    .err { background: #fdecec; border: 1px solid #f3b1b1; }
-    .small { font-size: 12px; color: #666; }
-    .kvgrid { display: grid; grid-template-columns: 1fr; gap: 12px; }
-    @media (min-width: 900px) { .kvgrid { grid-template-columns: 1fr 1fr; } }
-    .boolwrap { display:flex; align-items:center; gap:10px; padding: 6px 0 2px; }
-    .boolwrap input[type="checkbox"] { width: 20px; height: 20px; }
-  </style>
-</head>
-<body>
-  <div class="wrap">
-    <h1>Config Editor</h1>
-    {% if message %}
-      <div class="msg {{ 'ok' if message_kind=='ok' else 'err' }}">{{ message }}</div>
-    {% endif %}
-    <div class="bar">
-      <!-- IMPORTANT: this button submits the BIG form below -->
-      <button type="submit" form="saveForm">Save changes</button>
-      <button class="secondary" type="button" onclick="window.location='{{ url_for('index') }}'">Reload</button>
-    </div>
-    <form id="saveForm" method="post" action="{{ url_for('save') }}">
-      <div class="kvgrid">
-        {% for item in items %}
-          <div class="row">
-            {% if item.comment %}
-              <div class="comment">{{ item.comment }}</div>
-            {% endif %}
-            <div class="key">
-              <span>{{ item.key }}</span>
-              {% if item.is_bool %}
-                <span class="small">boolean</span>
-              {% endif %}
-            </div>
-            {% if item.is_bool %}
-              <div class="boolwrap">
-                <input type="hidden" name="t__{{ item.key|e }}" value="bool">
-                <input type="hidden" name="b__{{ item.key|e }}" value="0">
-                <input type="checkbox" name="b__{{ item.key|e }}" value="1" {% if item.bool_checked %}checked{% endif %} />
-              </div>
-            {% else %}
-              <input type="text" name="k__{{ item.key|e }}" value="{{ item.value|e }}" />
-            {% endif %}
-          </div>
-        {% endfor %}
-      </div>
-      <div class="actions">
-        <button type="submit">Save changes</button>
-        <button class="secondary" type="button" onclick="window.location='{{ url_for('index') }}'">Reload</button>
-      </div>
-    </form>
-  </div>
-</body>
-</html>
-"""
-def create_app(cfg_path: Path) -> Flask:
+def create_app(cfg_path: Path, app_theme: str) -> Flask:
     app = Flask(__name__)
     app.config["CFG_PATH"] = cfg_path
 
@@ -275,8 +202,8 @@ def create_app(cfg_path: Path) -> Flask:
         text = cfg_path.read_text(errors="replace")
         lines = parse_config(text)
         items = build_items(lines)
-        return render_template_string(
-            PAGE_TMPL,
+        return render_template(
+            get_themed_template(app_theme, "config"),
             items=items,
             cfg_path=str(cfg_path),
             loaded_at=dt.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
@@ -315,28 +242,32 @@ def create_app(cfg_path: Path) -> Flask:
         except Exception as e:
             return redirect(url_for("index", msg=f"Save failed: {e}", kind="err"))
     return app
+
 def main():
     app_host = "0.0.0.0"
     app_port = 8080
+    app_theme = os.getenv("CONFIG_EDITOR_THEME", "light").lower()
+    app_supported_themes = {"light", "dark"}
+    if app_theme not in app_supported_themes:
+        logToDocker(f"Unsupported theme '{app_theme}', defaulting to 'light'. Supported themes: {', '.join(app_supported_themes)}")
+        app_theme = "light"
+
     nitrox_save = os.getenv("NITROX_SAVE", "My World")
-    
     cfg_path = Path("/app/config/Nitrox/saves/{0}/server.cfg".format(nitrox_save)).expanduser()
     logToDocker(f"Waiting for config file to be available at: {cfg_path} ...")
-    wait_interval = 5
-    max_wait = 120
     elapsed = 0
+    max_wait = 120
+    wait_interval = 5
     while not cfg_path.exists():
         if elapsed >= max_wait:
             logToDocker(f"Config file not found after {max_wait}s: {cfg_path}")
             raise SystemExit("[CM] [ConfigEditor] Stopping server.")
         time.sleep(wait_interval)
         elapsed += wait_interval
-        logToDocker(f"Still waiting for config file... ({elapsed}s elapsed)")
-    
     logToDocker(f"Using config file: {cfg_path}")
     logToDocker(f"Starting server on {app_host}:{app_port} ...")
     logToDocker(f"Basic auth is {'enabled' if basic_auth_required() else 'disabled'}.")
-    app = create_app(cfg_path)
+    app = create_app(cfg_path, app_theme)
     serve(app, host=app_host, port=app_port)
 
 if __name__ == "__main__":

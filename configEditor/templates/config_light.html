@@ -1,0 +1,182 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <title>Config Editor</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+        body {
+            font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+            margin: 24px;
+        }
+
+        .wrap {
+            max-width: 1020px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            margin: 0 0 8px;
+        }
+
+        .bar {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            margin: 12px 0 18px;
+            flex-wrap: wrap;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+
+        .row {
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            padding: 14px;
+            margin: 12px 0;
+        }
+
+        .key {
+            font-weight: 700;
+            margin-bottom: 6px;
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+        }
+
+        .comment {
+            color: #555;
+            font-size: 13px;
+            margin-bottom: 10px;
+            white-space: pre-wrap;
+        }
+
+        .actions {
+            margin-top: 16px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            padding: 10px 14px;
+            border-radius: 10px;
+            border: 1px solid #111;
+            background: #111;
+            color: #fff;
+            cursor: pointer;
+        }
+
+        button.secondary {
+            background: #fff;
+            color: #111;
+        }
+
+        button.danger {
+            background: #7a0f0f;
+            border-color: #7a0f0f;
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .msg {
+            padding: 12px 14px;
+            border-radius: 10px;
+            margin: 12px 0;
+        }
+
+        .ok {
+            background: #e9f7ec;
+            border: 1px solid #a6dfb2;
+        }
+
+        .err {
+            background: #fdecec;
+            border: 1px solid #f3b1b1;
+        }
+
+        .small {
+            font-size: 12px;
+            color: #666;
+        }
+
+        .kvgrid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+        }
+
+        @media (min-width: 900px) {
+            .kvgrid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        .boolwrap {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 6px 0 2px;
+        }
+
+        .boolwrap input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="wrap">
+        <h1>Config Editor</h1>
+        {% if message %}
+        <div class="msg {{ 'ok' if message_kind=='ok' else 'err' }}">{{ message }}</div>
+        {% endif %}
+        <div class="bar">
+            <!-- IMPORTANT: this button submits the BIG form below -->
+            <button type="submit" form="saveForm">Save changes</button>
+            <button class="secondary" type="button" onclick="window.location='{{ url_for('index') }}'">Reload</button>
+        </div>
+        <form id="saveForm" method="post" action="{{ url_for('save') }}">
+            <div class="kvgrid">
+                {% for item in items %}
+                <div class="row">
+                    {% if item.comment %}
+                    <div class="comment">{{ item.comment }}</div>
+                    {% endif %}
+                    <div class="key">
+                        <span>{{ item.key }}</span>
+                        {% if item.is_bool %}
+                        <span class="small">boolean</span>
+                        {% endif %}
+                    </div>
+                    {% if item.is_bool %}
+                    <div class="boolwrap">
+                        <input type="hidden" name="t__{{ item.key|e }}" value="bool">
+                        <input type="checkbox" name="b__{{ item.key|e }}" value="1" {% if item.bool_checked %}checked{% endif %} />
+                    </div>
+                    {% else %}
+                    <input type="text" name="k__{{ item.key|e }}" value="{{ item.value|e }}" />
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+            <div class="actions">
+                <button type="submit">Save changes</button>
+                <button class="secondary" type="button"
+                    onclick="window.location='{{ url_for('index') }}'">Reload</button>
+            </div>
+        </form>
+    </div>
+</body>
+
+</html>

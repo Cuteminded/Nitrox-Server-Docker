@@ -16,6 +16,6 @@ export XDG_CONFIG_HOME=/app/config
 
 if [ "${CONFIG_EDITOR}" = "true" ]; then
     echo "[CM] Starting Configuration Editor..."
-    python3 /app/config/configEditor/config_editor.py &
+    python3 /app/config/configEditor/editor.py &
 fi
 /app/Nitrox/Nitrox.Server.Subnautica --save "${NITROX_SAVE}" --game-path ${SUBNAUTICA_INSTALLATION_PATH}
